@@ -1,0 +1,41 @@
+#include <ESP8266WiFi.h>   // Use <WiFi.h> for ESP32
+#include <ESP8266HTTPClient.h>  // For sending HTTP requests
+
+#define TRIG_PIN D5
+#define ECHO_PIN D6
+#define BUZZER D7
+
+// WiFi credentials
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+// IoT endpoint
+String serverName = "http://yourserver.com/update?level=";
+
+long duration;
+int distance;
+int threshold = 10;  // Full bin distance in cm
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  connectWiFi();
+}
+
+void loop() {
+  // Measure distance
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  duration = pulseIn(ECHO_PIN, HIGH, 30000); // 30ms timeout
+  distance = duration * 0.034 / 2; // Convert to cm
+  Serial.print("Distance: ");
+  Serial.println(distance);
+
+  // Buzzer alert if full
+  if (distance
